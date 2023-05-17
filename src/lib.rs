@@ -107,7 +107,8 @@ pub fn read_tree(file_path: &str) -> Result<Vec<Vec<u8>>> {
 
     let full_path = format!(".git/objects/{}/{}", &file_path[..2], &file_path[2..]);
 
-    let mut file_content = zlib_decode(&fs::read(&full_path)?)?;
+    let binding = zlib_decode(&fs::read(full_path)?)?;
+    let mut file_content = binding.as_slice();
 
     let mut result: Vec<Vec<u8>> = Vec::new();
 
@@ -117,10 +118,12 @@ pub fn read_tree(file_path: &str) -> Result<Vec<Vec<u8>>> {
         if data_pos.next().ne(&Some("tree".as_bytes())) {
             bail!("Not tree object");
         }
-        file_content = file_content[pos + 1..].to_vec();
+        file_content = &file_content[pos + 1..];
     } else {
         bail!("Do not posible to split data");
     }
+
+
     while let Some(pos) = file_content[..].iter().position(|&r| r == b'\x00') {
         let data_pos = file_content[..pos].split(|&r| r == b' ');
         result.push(
@@ -135,7 +138,7 @@ pub fn read_tree(file_path: &str) -> Result<Vec<Vec<u8>>> {
         file_content = file_content
             .get(pos + 1 + HASH_BYTES..)
             .ok_or(anyhow!("Element not found"))?
-            .to_vec();
+            
     }
 
     Ok(result)

@@ -49,10 +49,9 @@ pub fn clone_repo((url, target_dir): (&str, &str)) -> Result<()> {
     let num = u32::from_be_bytes(entries_bytes);
     //println!("num: {:?}", num);
 
-    let data_bytes: Vec<u8> = res_data
+    let data_bytes: &[u8] = res_data
         .get(HASH_BYTES..res_data_size)
-        .ok_or(anyhow!("Data in indexes range do not exist!"))?
-        .to_vec();
+        .ok_or(anyhow!("Data in indexes range do not exist!"))?;
 
     // println!("data_bytes: {:?}", data_bytes);
     let mut objs = HashMap::new();
@@ -145,13 +144,9 @@ pub fn clone_repo((url, target_dir): (&str, &str)) -> Result<()> {
 /************************************************************************************************************************ */
 fn create_dirs(target_dir: &str) -> Result<(), io::Error> {
     fs::create_dir_all(target_dir)?;
-
     fs::create_dir_all(target_dir.to_owned() + "/.git")?;
-
     fs::create_dir_all(target_dir.to_owned() + "/.git/objects/")?;
-
     fs::create_dir_all(target_dir.to_owned() + "/.git/refs")?;
-
     fs::write(
         target_dir.to_owned() + "/.git/HEAD",
         "ref: refs/heads/master\n",
@@ -161,9 +156,7 @@ fn create_dirs(target_dir: &str) -> Result<(), io::Error> {
 }
 fn get_pack_hash(url: &str) -> Result<String> {
     let body = reqwest::blocking::get(url)?.text()?;
-
     //println!("body = {:#?}", body);
-
     let content = body
         .split('\n')
         .filter(|c| c.contains("refs/heads/master") && c.contains("003f"))
@@ -185,9 +178,7 @@ fn post_to_git_data(url: &str, data: &str) -> Result<bytes::Bytes> {
         CONTENT_TYPE,
         HeaderValue::from_static("application/x-git-upload-pack-request"),
     );
-
     let client = reqwest::blocking::Client::new();
-
     let res = client.post(url).headers(headers).body(String::from(data));
     // println!("res = {:#?}", &res);
     let res_send = res.send()?;
@@ -199,7 +190,6 @@ fn post_to_git_data(url: &str, data: &str) -> Result<bytes::Bytes> {
         );
     }
     println!("success!");
-
     let res_data = res_send.bytes()?;
 
     Ok(res_data)

@@ -419,7 +419,7 @@ fn clone_test() -> Result<(), Box<dyn std::error::Error>> {
     };
     println!("Executing clone with TEST_REPO_{repo_id}");
 
-    let project_path = Path::new("C:\\Projects\\codecrafters-git-rust\\clone");
+    let project_path = Path::new("C:\\Projects\\git-starter-rust\\clone");
     // Clone with default git
     print!("Clonning with git clone");
     let temp_folder_2 = project_path.join("Git");
