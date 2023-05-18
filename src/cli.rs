@@ -5,7 +5,7 @@ use std::path::Path;
 //use thiserror::Error;
 use clap::{arg, Args};
 //use std::{iter::zip, str::FromStr};
-
+const HASH_LENGTH:usize = 40;
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 #[command(propagate_version = true)]
@@ -54,10 +54,12 @@ pub struct ReadBlobOptions {
     #[arg(short = 'p')]
     blob_sha: Option<String>,
 }
+
+
 impl ReadBlobOptions {
     pub fn read(&self) -> Result<&str, ArgsReadError> {
         if let Some(blob_sha) = self.blob_sha.as_deref() {
-            if blob_sha.len() == 40 {
+            if blob_sha.len() == HASH_LENGTH {
                 return Ok(blob_sha);
             }
         }
@@ -98,7 +100,7 @@ pub struct ReadTreeOptions {
 impl ReadTreeOptions {
     pub fn read(&self) -> Result<&str, ArgsReadError> {
         if let Some(tree_sha) = self.tree_sha.as_deref() {
-            if tree_sha.len() == 40 {
+            if tree_sha.len() == HASH_LENGTH {
                 return Ok(tree_sha);
             }
         }
@@ -121,9 +123,9 @@ impl CommitTreeOptions {
         // println!("In read");
 
         if let Some(tree_sha) = self.tree_sha.as_deref() {
-            if tree_sha.len() == 40 {
+            if tree_sha.len() == HASH_LENGTH {
                 if let Some(commit_sha) = self.commit_sha.as_deref() {
-                    if commit_sha.len() == 40 {
+                    if commit_sha.len() == HASH_LENGTH {
                         if let Some(message) = self.message.as_deref() {
                             return Ok((tree_sha, commit_sha, message));
                         }

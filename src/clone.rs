@@ -155,6 +155,7 @@ fn create_dirs(target_dir: &str) -> Result<(), io::Error> {
     Ok(())
 }
 fn get_pack_hash(url: &str) -> Result<String> {
+    const HASH_LENGTH:usize = 40;
     let body = reqwest::blocking::get(url)?.text()?;
     //println!("body = {:#?}", body);
     let content = body
@@ -162,7 +163,7 @@ fn get_pack_hash(url: &str) -> Result<String> {
         .filter(|c| c.contains("refs/heads/master") && c.contains("003f"))
         .collect::<String>();
     let content = content.split(' ').next().ok_or(anyhow!("Data not found"))?;
-    if content.len() != 44 {
+    if content.len() != HASH_LENGTH + 4{
        bail!("Data is not a sha");
     }
     let pack_hash = String::from(&content[4..]);

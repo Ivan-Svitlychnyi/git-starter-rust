@@ -22,7 +22,10 @@ fn main() -> Result<()> {
             }
         }
         Commands::CatFile(read_options) => {
+
             if let Err(err) = read_git_object(ReadBlobOptions::read(read_options)?) {
+
+                
                 eprintln!("ERROR in Read a blob object: {}", err);
                 std::process::exit(2);
             }
